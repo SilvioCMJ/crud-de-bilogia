@@ -1,0 +1,1291 @@
+para importar a data no crud
+
+from datetime import datetime
+
+data = datetime.now()
+print(data.strftime('%Y'))
+import sqlite3
+from datetime import datetime
+
+
+def montaTabelas():
+    
+    conn = sqlite3.connect('crudlab.db')
+    cursor = conn.cursor()
+    
+    cursor.execute("Create table if not exists tbl_laboratorio(id integer primary key autoincrement, specie text, order_v text, location text, date_collect date)")
+    conn.commit(); print("Banco de dados criado com sucesso")
+    conn.close(); print("Desconectando o Banco de Dados")
+    
+data_today = datetime.now()
+print(data_today.strftime('%d/%m/%y'))
+
+tela de login
+
+from customtkinter import *
+from tkinter import *
+from function import login, image
+from main import Aplication
+
+color0 = '#43b9c6'
+color1 = '#347e87'
+color2 = '#01264e'
+class ScreenLogin():
+    def __init__(self, root):
+        #Atributos da tela
+        self.root = root
+        
+        self.screen_config()
+        self.image()
+        self.data_input()
+        self.root.mainloop()
+        
+    def press_enter(self, *a):
+        if(a[0].keysym == "Return"):
+            self.login()
+            
+    def screen_config(self): #Configuração da tela de login
+        self.root.bind("<KeyPress>", self.press_enter)
+        self.root.title('Tela de login')
+        self.root.geometry('400x600+300+200')
+        self.root.resizable(False, False)
+        self.root.configure(fg_color=color1)
+
+
+    def image(self): #Imagem do centro da tela
+        self.img = image('img/LogoCRUDLab.png', 130, 130)
+        self.img_user = Label(self.root, image=self.img, bg=color1)
+        self.img_user.place(relx=0.35, rely=.2)
+        
+        
+
+    def data_input(self): #Entrada dos dados de login
+        
+        
+        """ Parte do entry de username """
+        #Frame de borda inferior do username
+        self.frame_border_username = CTkFrame(fg_color=color2)
+        self.frame_border_username.place(relx=0.2, rely=.549, relwidth=.6, height=2)
+        
+        #Imagem lateral carta
+        self.img_card = image('img/carta.png', 20, 15)
+        self.lb_card = Label(self.root, image=self.img_card, bg=color1)
+        self.lb_card.place(relx=.2, rely=.51)
+                
+        #Definindo o entry para a entrada do username
+        self.entry_username = CTkEntry(self.root, placeholder_text='Username'.upper(), 
+                                       text_font='Arial 12 bold', placeholder_text_color=color2,
+                                       fg_color=color1, border_color=color1)
+        self.entry_username.place(relx=0.30, rely=.5, relwidth=.51)
+        
+        
+        """ Parte do entry de senha """
+        #Frame de borda inferior do password
+        self.frame_border_senha = CTkFrame(fg_color=color2)
+        self.frame_border_senha.place(relx=0.2, rely=.649, relwidth=.6, height=2)
+        
+        #Imagem lateral cadeado
+        self.img_key = image('img/senha.png', 20, 15)
+        self.lb_key = Label(self.root, image=self.img_key, bg=color1)
+        self.lb_key.place(relx=.2, rely=.61)
+            
+        #Definindo o entry para a entrada do password
+        self.entry_password = CTkEntry(self.root, placeholder_text='Password'.upper(), 
+                                    text_font='Arial 12 bold', placeholder_text_color=color2,
+                                    fg_color=color1, border_color=color1, show='*')
+        self.entry_password.place(relx=0.30, rely=.6, relwidth=.51)
+        
+        
+        """ Parte do botão """
+        #Botão para realizar o login
+        btn_logar = CTkButton(self.root, text='Login'.upper(), text_font='arial 15 bold', 
+                              fg_color=color2, cursor='hand2', command=self.login)
+        btn_logar.place(relx=0.20, rely=.74, relwidth=.61, height=45)
+        
+        self.lb_sem_cadastro = Label(self.root, text='Entrar sem cadastro.', fg=color2,
+                                bg=color1, cursor='hand2')
+        #Entrar sem login
+        """ self.lb_sem_cadastro.bind('<Enter>', self.inside_hover)
+        self.lb_sem_cadastro.bind('<Leave>', self.outside_hover)
+        self.lb_sem_cadastro.place(relx=.35, rely=.9) """
+        
+    def inside_hover(self, *args):
+        self.lb_sem_cadastro['fg'] = '#fff'
+    def outside_hover(self, *args):
+        self.lb_sem_cadastro['fg'] = color2
+            
+    def login(self):
+        username = self.entry_username.get()
+        password = self.entry_password.get()
+        user = login(username, password)
+        if user:
+            self.root.destroy()
+            Aplication(CTk())
+        """ else:
+            print(self.frame_border_senha.fg_color)
+            self.frame_border_senha.fg_color='#ff0000'
+            self.frame_border_senha.destroy()
+            #self.frame_border_senha.pack() """
+            
+            
+            
+ScreenLogin(CTk())
+
+fuçao na tela do crud
+
+from tkinter import *
+from tkinter import ttk, messagebox
+import sqlite3
+import io
+from table_inventory import TblInventory
+from datetime import datetime
+from tabela import MyList
+from relatorio import Relatorios
+
+class Funcs(MyList, TblInventory, Relatorios):
+
+    # Criando a função de limpar a tela de cadastro do organismo
+    def clean_screen(self):
+        self.data_today = datetime.now()
+        self.specie_entry.delete(0, END)
+        self.order_entry.delete(0, END)
+        self.location_entry.delete(0, END)
+        self.date_entry.delete(0, END)
+        self.date_entry.set_date(self.data_today.strftime('%d/%m/%Y'))
+    
+    # Criando a função de limpar a tela de cadastro do inventário
+    def clean_screen_inventory(self):
+        self.data_today = datetime.now()
+        self.itens_entry.delete(0, END)
+        self.qtd_entry.delete(0, END)
+        self.date_entry_inventory.delete(0, END)
+        self.date_entry_inventory.set_date(self.data_today.strftime('%d/%m/%Y'))
+    
+    # Funções do BANCO DE DADOS
+    def conectar_bd(self):
+        self.conn = sqlite3.connect('crudlab.db')
+        self.cursor = self.conn.cursor()
+        
+    def desconectar_bd(self):
+        self.conn.close(); print("Desconectando o Banco de Dados")
+        
+    def create_tbl_lab(self):
+        self.conectar_bd(); print("Conectando ao Banco de Dados")
+        # Criando a tabela
+        self.cursor.execute("Create table if not exists tbl_laboratorio(id integer primary key autoincrement, specie text, order_v text, location text, date_collect date)")
+        self.conn.commit(); print("Banco de dados criado com sucesso")
+        self.desconectar_bd()
+    
+    # Função da tabela da aba Modify
+    def create_tbl_lab(self):
+        self.conectar_bd(); print("Conectando ao Banco de Dados")
+        # Criando a tabela
+        self.cursor.execute("Create table if not exists tbl_modify(id integer primary key autoincrement, user TEXT, specie TEXT, order_v TEXT, location TEXT, date_collect DATE)")
+        self.conn.commit(); print("Banco de dados criado com sucesso")
+        self.desconectar_bd()
+
+    # Função para criar tabela do inventário
+    def create_tbl_inventory(self):
+        self.conectar_bd(); print("Conectando ao Banco de Dados")
+        # Criando a tabela
+        self.cursor.execute("Create table if not exists tbl_inventory(id integer primary"
+                            " key autoincrement, itens text, qtd text,  date_collect date)")
+        self.conn.commit(); print("Banco de dados criado com sucesso")
+        self.desconectar_bd()
+
+    
+    # Função para obter os dados quando estiver adicionando os organismos
+    def variaveis(self):
+        self.specie = self.specie_entry.get()
+        self.order = self.order_entry.get()
+        self.location = self.location_entry.get()
+        self.date = self.date_entry.get()
+        #print(self.date)
+    
+   
+    # Função para obter os dados quando estiver adicionando os itens do inventário
+    def variaveis_inventory(self):
+        self.itens = self.itens_entry.get()
+        self.qtd = self.qtd_entry.get()
+        self.date_inventory = self.date_entry_inventory.get()
+    
+    # Função do Botão NOVO para cadastrar novos clientes
+    def add_cliente(self):
+        self.variaveis()
+        
+        # Criando um tratamento de entrada inválidas
+        if self.specie_entry.get() == "" or self.order_entry.get() == "":
+            msg = "Campos espécie ou Ordem estão vázios. Digite uma espécie e uma ordem para\ncadastrar um organismo"
+            messagebox.showinfo("Cadastro de clientes - AVISO!!!", msg)
+        else:
+            self.conectar_bd()
+            query = "INSERT INTO tbl_laboratorio(specie, order_v, location, date_collect) VALUES (?,?,?,?)"
+            self.cursor.execute(query, (self.specie, self.order, self.location, self.date))
+            self.conn.commit()
+            self.desconectar_bd()
+            self.select_lista()
+            self.clean_screen()
+    
+    # Função que add na tabela inventário
+    def add_inventory(self):
+        self.variaveis_inventory()
+        if self.itens_entry.get() == "" or self.qtd_entry.get() == "":
+            msg = "Campos item e/ou quantidade estão vázios. Digite uma item e uma quantidade para\ncadastrar no inventário"
+            messagebox.showinfo("Cadastro de clientes - AVISO!!!", msg)
+        else:
+            self.conectar_bd()
+            query = "INSERT INTO tbl_inventory(itens, qtd, date_collect) VALUES (?,?,?)"
+            self.cursor.execute(query, (self.itens, self.qtd, self.date_inventory))
+            self.conn.commit()
+            self.desconectar_bd()
+            self.select_lista_inventory()
+            
+            self.clean_screen_inventory()
+        
+    # Função para adicionar a tabela   
+    def select_lista_inventory(self):
+        #self.listaCli.delete(*self.listaCli.get_children())
+        self.conectar_bd()
+        lista = self.cursor.execute("SELECT * FROM tbl_inventory ORDER BY id ASC;")
+        self.create_invetory(self.frame_inventory, lista)
+        """ for i in lista:
+            print(i)
+            self.listaCli.insert("", END, values=i) """
+        
+        self.desconectar_bd()
+    
+    # Função para pegar os dados quando estiver alterando
+    def variaveis_edit_inventory(self):
+        self.itens_edit = self.itens_entry_edit.get()
+        self.qtd_edit = self.qtd_entry_edit.get()
+        self.date_edit_inventory = self.date_entry_edit_inventory.get()
+
+    
+    # Função do botão ALTERAR para alterar os dados do cliente  
+    def alterar_rigister_inventory(self, id):
+        self.variaveis_edit_inventory()
+        if self.itens_entry_edit.get() == "" or self.qtd_entry_edit.get() == "":
+            msg = "Os campos precisam estar preenchidos para realizar as alterações"
+            messagebox.showinfo("Cadastro de clientes - AVISO!!!", msg)
+        else:
+            self.conectar_bd()
+            self.cursor.execute("UPDATE tbl_inventory SET itens = ?, qtd = ?,"
+                                " date_collect = ?  WHERE id = %d "%id,
+                                (self.itens_edit, self.qtd_edit, self.date_edit_inventory))
+            self.conn.commit()
+            
+            self.desconectar_bd()
+            self.select_lista_inventory()
+            self.window_edit.destroy()
+            self.clean_screen()
+    
+    # Função para adicionar a tabela   
+    def select_lista(self):
+        #self.list_modify_2.delete(*self.list_modify_2.get_children())
+        
+        self.conectar_bd()
+        lista = self.cursor.execute("SELECT id, specie, order_v, location, date_collect FROM tbl_laboratorio ORDER BY id ASC;")
+        self.create(self.frame_pg_inicial, lista)
+        
+        """ for i in lista:
+            self.list_modify_2.insert("", END, values=i) """
+        
+        self.desconectar_bd()
+        
+    # Função para adicionar a tabela   
+    def select_lista_modify(self):
+        self.list_modify.delete(*self.list_modify.get_children())
+        
+        self.conectar_bd()
+        lista = self.cursor.execute("SELECT id, specie, order_v, location, date_collect FROM tbl_laboratorio ORDER BY id ASC;")
+        
+        for i in lista:
+            self.list_modify.insert("", END, values=i) 
+        
+        self.desconectar_bd()
+        
+    """ # Função para adicionar a tabela   
+    def select_lista_before_modify(self):
+        self.list_modify_2.delete(*self.list_modify_2.get_children())
+        
+        self.conectar_bd()
+        lista = self.cursor.execute("SELECT id, specie, order_v, location, date_collect FROM tbl_laboratorio ORDER BY id ASC;")
+        
+        for i in lista:
+            self.list_modify_2.insert("", END, values=i) 
+        
+        self.desconectar_bd() """
+
+    # Função do botão APAGAR para remover clientes do banco de dados
+    def deleta_cliente(self, table, id):
+        self.conectar_bd()
+        
+        self.cursor.execute("DELETE FROM %s WHERE id = %d"%(table, id))
+        self.conn.commit()
+        
+        self.desconectar_bd()
+
+    # Função para pegar os dados quando estiver alterando
+    def variaveis_edit(self):
+        self.specie_edit = self.specie_entry_edit.get()
+        self.order_edit = self.order_entry_edit.get()
+        self.location_edit = self.location_entry_edit.get()
+        self.date_edit = self.date_entry_edit.get()
+   
+    # Função do botão ALTERAR para alterar os dados do cliente  
+    def alterar_cliente(self, id):
+        self.variaveis_edit()
+        if self.specie_entry_edit.get() == "" or self.order_entry_edit.get() == "":
+            msg = "Os campos precisam estar preenchidos para realizar as alterações"
+            messagebox.showinfo("Cadastro de clientes - AVISO!!!", msg)
+        else:
+            self.conectar_bd()
+            self.cursor.execute("UPDATE tbl_laboratorio SET specie = ?, order_v = ?,"
+                                "location = ?, date_collect = ?  WHERE id = %d "%id,
+                                (self.specie_edit, self.order_edit, self.location_edit, self.date_edit))
+            self.conn.commit()
+            
+            self.desconectar_bd()
+            self.select_lista()
+            self.window_edit.destroy()
+        #self.limpa_tela()
+
+    # Função que busca pelo id o registro
+    def search_registry(self, table, id):
+        self.conectar_bd()
+        self.cursor.execute("SELECT * FROM %s WHERE id=%d"%(table, id))
+        datas = self.cursor.fetchall()
+        return datas[0]
+
+    # Função que cria o backup do banco
+    def backup(self):
+        
+        self.conectar_bd()
+        
+        # Open() function 
+        with io.open('backupcrudlab.db', 'w') as p: 
+                
+            # iterdump() function
+            for line in self.conn.iterdump(): 
+                
+                p.write('%s\n' % line)
+            
+        print(' Backup performed successfully!')
+        print(' Data Saved as backupdatabase_dump.db')
+        
+        self.desconectar_bd()
+
+funçao do login
+
+import json #Biblioteca para trabalhar com json
+import os
+from PIL import Image, ImageTk
+filename = 'users.json'
+
+def login(username, password):
+    try:
+        with open(filename) as file:
+            users = json.load(file)
+    except json.decoder.JSONDecodeError:
+        print('Nenhum usuário cadastrado, chame o suporte')
+    except FileNotFoundError:
+        os.system('type nul > users.json')
+    else:
+        for user in users:
+            if(user['username'].lower() == username.lower() and user['password'] == password):
+                return True
+            
+    return False
+
+def image(url, width=12, height=12):
+    img = Image.open(url)
+    img = img.resize((width, height))
+    img = ImageTk.PhotoImage(img)
+    return img
+
+elementos da lista
+
+from tkinter import *
+
+class MyList(Frame):
+    def __init__(self, master, func):
+        super().__init__(master)
+        self.func = func
+        
+        self.place(x=0, y=0, relwidth=1, relheight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_propagate(False)
+
+        self.canvas = Canvas(self)
+        self.canvas.grid(row=0, column=0, sticky="news")
+
+        self.scroll_bar = Scrollbar(self, orient=VERTICAL, command = self.canvas.yview)
+        self.scroll_bar.grid(row=0, column=1, sticky='ns')
+        self.canvas.config(yscrollcommand = self.scroll_bar.set)
+        
+        self.internal_frame = Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.internal_frame, anchor='nw')
+
+        self.__build()
+        self.internal_frame.update_idletasks()
+
+        #self.config(width=300,height=300)
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
+    def __build(self):
+        self.func(self.internal_frame)
+
+window = Tk()
+
+def tra(a):
+    for i in range(300): 
+        frame = Frame(a, bg='purple', width=500)
+        #Button(a, text="teste %i" % i, command= lambda *a: print(i)).pack()
+                
+my_list = MyList(window, tra)
+window.geometry('700x500')
+window.resizable(width=True,height=True)
+window.maxsize(width=900, height=700)
+window.minsize(width=500, height=400)
+window.mainloop()
+
+janela crud
+
+from tkinter import *
+from tkinter import ttk
+from customtkinter import *
+""" from module import* """
+from func_banco import Funcs
+from tkcalendar import DateEntry
+
+from PIL import Image, ImageTk
+
+color0 = '#000'
+color1 = '#fff'
+color2 = '#008080'
+color3 = '#008080'
+color_text_toplevel = 'purple'
+color_bg_toplevel = '#008080'
+color_bg_entry_toplevel = 'blue'
+color_border_entry_top = '#35363a'
+color_text_button_toplevel = 'pink'
+color_bg_button_toplevel = 'red'
+color_border_button_toplevel = 'green'
+color_hover_button_toplevel = 'black'
+
+class Aplication(Funcs):
+    def __init__(self, janela):
+        self.janela = janela
+        self.create_tbl_lab()
+        self.create_tbl_inventory()
+        self.tela()
+        self.frames_da_tela()
+        self.widgets_frame_menu()
+        self.init_pg_inicial()
+        self.frame = self.frame_pg_inicial
+        #self.screen_add()
+        #self.Menus()
+        self.janela.mainloop()
+    
+    # Função para cria a janela de add da tabela tbl_laboratorio   
+    def screen_add(self):
+        # Configurações da janela
+        self.window = CTkToplevel(self.janela)
+        self.window.title('Inserir Animal')
+        self.window.geometry('270x450')
+        self.window.maxsize(width=300, height=500)
+        self.window.minsize(width=270, height=400)
+        self.window.config(background=color_bg_toplevel)
+        self.window.iconbitmap('img/crudLabIcon.ico')
+        
+        self.img = Image.open('img/logo2.png')
+        self.img = ImageTk.PhotoImage(self.img)
+        self.lb_img = CTkLabel(self.window, image=self.img)
+        self.lb_img.place(relx=.15, rely=0.1)
+
+        # Definindo entrys para entradas de dados
+        self.specie_entry = CTkEntry(self.window, placeholder_text='Espécie',  text_color=color0,
+                                        fg_color=color1, border_color=color_border_entry_top,
+                                        text_font='Arial 15')
+        self.specie_entry.place(relx=0.05, rely=0.4, relwidth=0.9)
+
+
+        self.order_entry = CTkEntry(self.window, placeholder_text='Order',  text_color=color0,
+                                        fg_color=color1, border_color=color_border_entry_top,
+                                        text_font='Arial 15')
+        self.order_entry.place(relx=0.05, rely=0.5, relwidth=0.9)
+
+
+        self.location_entry = CTkEntry(self.window, placeholder_text='Local da coleta', text_color=color0,
+                                        fg_color=color1, border_color=color_border_entry_top,
+                                        text_font='Arial 15')
+        self.location_entry.place(relx=0.05, rely=0.6, relwidth=0.9)
+        
+        self.date_entry = DateEntry(self.window, font='Arial 15')
+        self.date_entry.place(relx=0.05, rely=0.7, relwidth=0.9)
+
+        # Definindo botão para add do novo registro
+        self.btn_add = CTkButton(self.window, text='Salvar', text_font='Arial 15', cursor='hand2',
+                            text_color=color1, fg_color='#2c605f',
+                            border_color=color_border_button_toplevel, hover_color=color2,
+                            command=self.add_cliente)
+        self.btn_add.place(relx=0.05, rely=0.85, relwidth=0.45, height=35)
+
+        # Definindo botão para limpar as entradas de dados
+        self.btn_clear = CTkButton(self.window, text='Limpar', text_font='Arial 15', cursor='hand2',
+                            text_color=color1, fg_color='#2c605f',
+                            border_color=color_border_button_toplevel, hover_color=color2)
+        self.btn_clear.place(relx=0.5, rely=0.85, relwidth=0.45, height=35)
+
+        
+        self.date_entry = DateEntry(self.window, font='Arial 15')
+        self.date_entry.place(relx=0.05, rely=0.7, relwidth=0.9)
+
+        self.btn_add = CTkButton(self.window, text='Salvar', text_font='Arial 15', cursor='hand2', text_color=color1, fg_color='#2c605f',
+                            border_color=color_border_button_toplevel, hover_color=color2,  command=self.add_cliente)
+        self.btn_add.place(relx=0.05, rely=0.85, relwidth=0.45, height=35)
+
+        self.btn_clear = CTkButton(self.window, text='Limpar', text_font='Arial 15', cursor='hand2', text_color=color1, fg_color='#2c605f',
+                            border_color=color_border_button_toplevel, hover_color=color2,
+                            command=self.clean_screen)
+        self.btn_clear.place(relx=0.5, rely=0.85, relwidth=0.45, height=35)
+
+        self.window.grab_set()
+        self.window.mainloop()
+        
+    # Função para cria a janela de edição da tabela tbl_laboratorio
+    def screen_edit(self, id):
+        # Configurações da janela
+        self.window_edit = CTkToplevel(self.janela)
+        self.window_edit.title('Alterar Item')
+        self.window_edit.geometry('270x450')
+        self.window_edit.maxsize(width=300, height=500)
+        self.window_edit.minsize(width=270, height=400)
+        self.window_edit.config(background=color_bg_toplevel)
+        self.window_edit.iconbitmap('img/crudLabIcon.ico')
+
+        self.img = Image.open('img/logo2.png')
+        self.img = ImageTk.PhotoImage(self.img)
+        self.lb_img = CTkLabel(self.window_edit, image=self.img)
+        self.lb_img.place(relx=.15, rely=0.1)
+
+        # Definindo entry para entradas de dados
+        self.specie_entry_edit = CTkEntry(self.window_edit, placeholder_text='Espécie',  text_color=color0,
+                                        fg_color=color1, border_color=color_border_entry_top,
+                                        text_font='Arial 15')
+        self.specie_entry_edit.place(relx=0.05, rely=0.4, relwidth=0.9)
+
+
+        self.order_entry_edit = CTkEntry(self.window_edit, placeholder_text='Order',  text_color=color0,
+                                        fg_color=color1, border_color=color_border_entry_top,
+                                        text_font='Arial 15')
+        self.order_entry_edit.place(relx=0.05, rely=0.5, relwidth=0.9)
+
+
+        self.location_entry_edit = CTkEntry(self.window_edit, placeholder_text='Local da coleta', text_color=color0,
+                                        fg_color=color1, border_color=color_border_entry_top,
+                                        text_font='Arial 15')
+        self.location_entry_edit.place(relx=0.05, rely=0.6, relwidth=0.9)
+
+        self.date_entry_edit = DateEntry(self.window_edit, font='Arial 15')
+        self.date_entry_edit.place(relx=0.05, rely=0.7, relwidth=0.9)
+
+        # Pre-carregando informações para edição
+        dados = self.search_registry('tbl_laboratorio', id)
+        self.specie_entry_edit.insert(0, dados[1])
+        self.order_entry_edit.insert(0, dados[2])
+        self.location_entry_edit.insert(0, dados[3])
+        self.date_entry_edit.set_date(dados[4])
+        
+        # Definindo butão para edição
+        self.btn_edit = CTkButton(self.window_edit, text='Editar', text_font='Arial 15', cursor='hand2',
+                            text_color=color1, fg_color='#2c605f',
+                            border_color=color_border_button_toplevel, hover_color=color2, 
+                            command=lambda: self.alterar_cliente(dados[0]))
+        self.btn_edit.place(relx=0.25, rely=0.85, relwidth=0.50, height=35)
+        
+        self.window_edit.grab_set()
+        self.window_edit.mainloop()
+    
+    # Função com as configurações da tela
+    def tela(self):
+        self.janela.title('Cadastro de Animais')
+        self.janela.configure(background='#1e3743')
+        self.janela.geometry('700x500')
+        self.janela.iconbitmap('img/crudLabIcon.ico')
+        self.janela.resizable(width=True,height=True)
+        self.janela.maxsize(width=900, height=700)
+        self.janela.minsize(width=500, height=400)
+    
+    # Criando os frames da janela inicial
+    def frames_da_tela(self):
+        
+        self.frame_1 = Frame(self.janela, bd=4, bg='#008080', 
+                            highlightbackground='#759fe6', highlightthickness=3)
+        self.frame_1.place(relx=0, rely=0, relwidth=1, relheight=0.46)
+        
+        #Frame da página inicial
+        self.frame_menu_internal = CTkFrame(self.janela, bg=color0)
+        self.frame_menu_internal.place(x=0, y=0, relwidth=1, relheight=0.08)
+        
+        self.frame_2 = Frame(self.janela, bd=4, bg='#008080',
+                            highlightbackground='#759fe6', highlightthickness=3)
+        self.frame_2.place(relx=0.02, rely=0.5, relwidth=0.96, relheight=0.46)
+        
+    # Função para auxiliar a mudanção de tela
+    def reset_frames(self, func):
+        self.frame.destroy()
+        func()
+    
+    # Frame com os botões no topo
+    def widgets_frame_menu(self):
+        self.btn_pg_inicial = CTkButton(self.frame_menu_internal, text='PÁGINA INICIAL',   
+                                         fg_color=color0, bg_color=color0, corner_radius=0,
+                                         cursor='hand2', hover_color=color2, text_color=color1,
+                                         command=lambda: self.reset_frames(self.init_pg_inicial))
+        
+        self.btn_pg_inicial.place(relx=0, y=0, relheight=1, relwidth=0.25)
+        self.btn_modificacao = CTkButton(self.frame_menu_internal, text='MODIFICAÇÃO',   
+                                         fg_color=color0, bg_color=color0, corner_radius=0,
+                                         cursor='hand2', hover_color=color2, text_color=color1,
+                                         command=lambda: self.reset_frames(self.init_modi))
+        self.btn_modificacao.place(relx=0.25, y=0, relheight=1, relwidth=0.25)
+        self.btn_inventario = CTkButton(self.frame_menu_internal, text='INVENTARIO',   
+                                         fg_color=color0, bg_color=color0, corner_radius=0,
+                                         cursor='hand2', hover_color=color2, text_color=color1,
+                                         command=lambda: self.reset_frames(self.init_inventory))
+        self.btn_inventario.place(relx=0.50, y=0, relheight=1, relwidth=0.25)
+        self.btn_backup = CTkButton(self.frame_menu_internal, text='BACKUP',   
+                                         fg_color=color0, bg_color=color0, corner_radius=0,
+                                         cursor='hand2', hover_color=color2, text_color=color1,
+                                         command= self.init_backup)
+        self.btn_backup.place(relx=0.75, y=0, relheight=1, relwidth=0.25)
+ 
+    # Função para iniciar a tela de modificações
+    def init_modi(self):
+         # Frame 1 da tela modify
+        self.frame_modi = CTkFrame(self.janela, fg_color=color3)
+        self.frame_modi.place(x=0, rely=0.08, relheight=0.95, relwidth=1)
+        self.list_modify_frame()
+        self.frame = self.frame_modi
+        self.select_lista_modify()
+        
+        # Frame 2 da tela modify
+        """ self.frame_modi_2 = CTkFrame(self.janela, fg_color=color3)
+        self.frame_modi_2.place(x=0, rely=0.5, relheight=0.75, relwidth=1)
+        self.list_modify_frame_2()
+        self.frame = self.frame_modi_2 """
+        
+   
+    # Função para iniciar a tela do inventário
+    def init_inventory(self):
+        self.frame_inventory = CTkFrame(self.janela, fg_color='#008080')
+        self.frame_inventory.place(x=0, rely=0.08, relheight=1, relwidth=1)
+        self.widgets_inventory()
+        self.frame = self.frame_inventory
+    
+    # Função para chamar o backup
+    def init_backup(self):
+        self.backup()
+   
+    # Função para iniciar a tela inicial
+    def init_pg_inicial(self):
+        self.frame_pg_inicial = CTkFrame(self.janela, fg_color=color3)
+        self.frame_pg_inicial.place(x=0, rely=0.08, relheight=1, relwidth=1)
+        self.widgets_frame_pg_inicial()
+        self.frame = self.frame_pg_inicial
+    
+
+    def widgets_frame_pg_inicial(self):
+        
+        # Denifindo butão de add na janela de inventário
+        self.btn_screen_add = CTkButton(self.frame_pg_inicial, text='ADD', text_font='Arial 20 bold', text_color=color1,
+                                 fg_color='#2c605f', cursor='hand2', hover_color=color2,
+                                 command=lambda: self.screen_add())
+        self.btn_screen_add.place(relx=0.015, rely=0.02)
+        
+        
+        #self.lista_frame2()
+        self.select_lista()
+        
+    # PARTE DO INVENTORY
+    def widgets_inventory(self): # cria os widgets da para o frame dos inventarios
+        
+        # Denifindo butão de add na janela de inventário
+        self.btn_screen_add = CTkButton(self.frame_inventory, text='ADD', text_font='Arial 20 bold', text_color=color1,
+                                 fg_color='#2c605f', cursor='hand2', hover_color=color2,
+                                 command=lambda: self.screen_add_inventory())
+        self.btn_screen_add.place(relx=0.015, rely=0.02)  
+        
+        # Chamada de função para gerar tabela do banco
+        self.select_lista_inventory()
+    
+    # TFunção para cria a janela de add da tabela tbl_inventory
+    def screen_add_inventory(self):
+        # Configuração da tela de add do inventário
+        self.window = CTkToplevel(self.janela)
+        self.window.title('Inserir Item')
+        self.window.geometry('270x450')
+        self.window.maxsize(width=300, height=500)
+        self.window.minsize(width=270, height=400)
+        self.window.config(background=color_bg_toplevel)
+        self.window.iconbitmap('img/crudLabIcon.ico')
+
+        # Definindo logo
+        self.img = Image.open('img/logo2.png')
+        self.img = ImageTk.PhotoImage(self.img)
+        self.lb_img = CTkLabel(self.window, image=self.img)
+        self.lb_img.place(relx=.15, rely=0.1)
+
+        # Criando entradas
+        self.itens_entry = CTkEntry(self.window, placeholder_text='Item',  text_color=color0,
+                                        fg_color=color1, border_color=color_border_entry_top,
+                                        text_font='Arial 15')
+        self.itens_entry.place(relx=0.05, rely=0.5, relwidth=0.9)
+
+
+        self.qtd_entry = CTkEntry(self.window, placeholder_text='Quantidade',  text_color=color0,
+                                        fg_color=color1, border_color=color_border_entry_top,
+                                        text_font='Arial 15')
+        self.qtd_entry.place(relx=0.05, rely=0.6, relwidth=0.9)
+
+        
+        self.date_entry_inventory = DateEntry(self.window, font='Arial 15')
+        self.date_entry_inventory.place(relx=0.05, rely=0.7, relwidth=0.9)
+
+        # Botões da tela
+        self.btn_add = CTkButton(self.window, text='Salvar', text_font='Arial 15', cursor='hand2',
+                            text_color=color1, fg_color='#2c605f',
+                            border_color=color_border_button_toplevel, hover_color=color2,
+                            command=self.add_inventory)
+        self.btn_add.place(relx=0.05, rely=0.85, relwidth=0.45, height=35)
+
+        self.btn_clear = CTkButton(self.window, text='Limpar', text_font='Arial 15', cursor='hand2',
+                            text_color=color1, fg_color='#2c605f',
+                            border_color=color_border_button_toplevel, hover_color=color2,
+                            command=self.clean_screen_inventory)
+        self.btn_clear.place(relx=0.5, rely=0.85, relwidth=0.45, height=35)
+
+        
+        self.window.grab_set()
+        self.window.mainloop()
+        
+    # Função para cria a janela de edição da tabela tbl_inventory
+    def screen_edit_inventroy(self, id):
+        # Configurações da janela
+        self.window_edit = CTkToplevel(self.janela)
+        self.window_edit.title('Alterar Item')
+        self.window_edit.geometry('270x450')
+        self.window_edit.maxsize(width=300, height=500)
+        self.window_edit.minsize(width=270, height=400)
+        self.window_edit.config(background=color_bg_toplevel)
+        self.window_edit.iconbitmap('img/crudLabIcon.ico')
+
+
+        self.img = Image.open('img/logo2.png')
+        self.img = ImageTk.PhotoImage(self.img)
+        self.lb_img = CTkLabel(self.window_edit, image=self.img)
+        self.lb_img.place(relx=.15, rely=0.1)
+
+        # Definindo entry para entradas de dados
+        self.itens_entry_edit = CTkEntry(self.window_edit, placeholder_text='Item',  text_color=color0,
+                                        fg_color=color1, border_color=color_border_entry_top,
+                                        text_font='Arial 15')
+        self.itens_entry_edit.place(relx=0.05, rely=0.4, relwidth=0.9)
+
+
+        self.qtd_entry_edit = CTkEntry(self.window_edit, placeholder_text='Quantidade',  text_color=color0,
+                                        fg_color=color1, border_color=color_border_entry_top,
+                                        text_font='Arial 15')
+        self.qtd_entry_edit.place(relx=0.05, rely=0.5, relwidth=0.9)
+
+
+
+        self.date_entry_edit_inventory = DateEntry(self.window_edit, font='Arial 15')
+        self.date_entry_edit_inventory.place(relx=0.05, rely=0.7, relwidth=0.9)
+
+        # Pre-carregando informações para edição
+        dados = self.search_registry('tbl_inventory', id)
+        self.itens_entry_edit.insert(0, dados[1])
+        self.qtd_entry_edit.insert(0, dados[2])
+        self.date_entry_edit_inventory.set_date(dados[3])
+        
+        # Definindo butão para edição
+        self.btn_edit = CTkButton(self.window_edit, text='Editar', text_font='Arial 15', cursor='hand2',
+                            text_color=color1, fg_color='#2c605f',
+                            border_color=color_border_button_toplevel, hover_color=color2, 
+                            command=lambda: self.alterar_rigister_inventory(dados[0]))
+        self.btn_edit.place(relx=0.25, rely=0.85, relwidth=0.50, height=35)
+        
+        self.window_edit.grab_set()
+        self.window_edit.mainloop()
+    
+   # Criando a Treeview do frame Modify    
+    def list_modify_frame(self):
+        self.list_modify = ttk.Treeview(self.frame_modi, height=3, columns=("Col1", "Col2", "Col3","Col4","Col5"))
+        self.list_modify.heading("#0", text="")
+        self.list_modify.heading("#1", text="ID")
+        self.list_modify.heading("#2", text="Espécie")
+        self.list_modify.heading("#3", text="Ordem")
+        self.list_modify.heading("#4", text="Local da Coleta")
+        self.list_modify.heading("#5", text="Data da Modificação")
+        
+        self.list_modify.column('#0', width=1)
+        self.list_modify.column('#1', width=30)
+        self.list_modify.column('#2', width=125)
+        self.list_modify.column('#3', width=125)
+        self.list_modify.column('#4', width=125)
+        self.list_modify.column('#5', width=125)
+        
+        self.list_modify.place(relx=0.01, rely=0.01, relwidth=0.95, relheight=0.92)
+        
+        self.yscrool_lista = Scrollbar(self.frame_modi, orient='vertical')
+        self.xscrool_lista = Scrollbar(self.frame_modi, orient='horizontal')
+        self.list_modify.configure(yscrollcommand=self.yscrool_lista.set, xscrollcommand=self.xscrool_lista.set)
+        self.yscrool_lista.place(relx=0.96, rely=0.01, relwidth=0.02, relheight=0.92)
+        self.xscrool_lista.place(relx=0.01, rely=0.93, relwidth=0.95, relheight=0.03)
+    
+       
+    # Criando a Treeview do frame_2 Modify    
+    """ def list_modify_frame_2(self):
+        self.list_modify_2 = ttk.Treeview(self.frame_modi_2, height=3, columns=("Col1", "Col2", "Col3","Col4","Col5"))
+        self.list_modify_2.heading("#0", text="")
+        self.list_modify_2.heading("#1", text="ID")
+        self.list_modify_2.heading("#2", text="Espécie")
+        self.list_modify_2.heading("#3", text="Ordem")
+        self.list_modify_2.heading("#4", text="Local da Coleta")
+        self.list_modify_2.heading("#5", text="Data da Modificações")
+        
+        self.list_modify_2.column('#0', width=1)
+        self.list_modify_2.column('#1', width=30)
+        self.list_modify_2.column('#2', width=125)
+        self.list_modify_2.column('#3', width=125)
+        self.list_modify_2.column('#4', width=125)
+        self.list_modify_2.column('#5', width=125)
+        
+        self.list_modify_2.place(relx=0.01, rely=0.01, relwidth=0.95, relheight=0.59)
+        
+        self.yscrool_lista = Scrollbar(self.frame_modi_2, orient='vertical')
+        self.xscrool_lista = Scrollbar(self.frame_modi_2, orient='horizontal')
+        self.list_modify_2.configure(yscrollcommand=self.yscrool_lista.set, xscrollcommand=self.xscrool_lista.set)
+        self.yscrool_lista.place(relx=0.96, rely=0.01, relwidth=0.02, relheight=0.59)
+        self.xscrool_lista.place(relx=0.01, rely=0.6, relwidth=0.95, relheight=0.05) """
+    
+#Aplication(CTk())
+
+janela de login
+
+from customtkinter import *
+from tkinter import *
+from function import login, image
+from main import Aplication
+
+color0 = '#43b9c6'
+color1 = '#347e87'
+color2 = '#01264e'
+
+
+class ScreenLogin():
+    def __init__(self, root):
+        # Atributos da tela
+        self.root = root
+
+        self.screen_config()
+        self.image()
+        self.data_input()
+        self.root.mainloop()
+
+    def press_enter(self, *a):
+        if (a[0].keysym == "Return"):
+            self.login()
+
+    def screen_config(self):  # Configuração da tela de login
+        self.root.bind("<KeyPress>", self.press_enter)
+        self.root.title('Tela de login')
+        self.root.geometry('400x600+300+200')
+        self.root.resizable(False, False)
+        self.root.configure(fg_color=color1)
+
+    def image(self):  # Imagem do centro da tela
+        self.img = image('img/LogoCRUDLab.png', 130, 130)
+        self.img_user = Label(self.root, image=self.img, bg=color1)
+        self.img_user.place(relx=0.35, rely=.2)
+
+    def data_input(self):  # Entrada dos dados de login
+
+        """ Parte do entry de username """
+        # Frame de borda inferior do username
+        self.frame_border_username = CTkFrame(fg_color=color2)
+        self.frame_border_username.place(relx=0.2, rely=.549, relwidth=.6, height=2)
+
+        # Imagem lateral carta
+        self.img_card = image('img/carta.png', 20, 15)
+        self.lb_card = Label(self.root, image=self.img_card, bg=color1)
+        self.lb_card.place(relx=.2, rely=.51)
+
+        # Definindo o entry para a entrada do username
+        self.entry_username = CTkEntry(self.root, placeholder_text='Username'.upper(),
+                                       text_font='Arial 12 bold', placeholder_text_color=color2,
+                                       fg_color=color1, border_color=color1)
+        self.entry_username.place(relx=0.30, rely=.5, relwidth=.51)
+
+        """ Parte do entry de senha """
+        # Frame de borda inferior do password
+        self.frame_border_senha = CTkFrame(fg_color=color2)
+        self.frame_border_senha.place(relx=0.2, rely=.649, relwidth=.6, height=2)
+
+        # Imagem lateral cadeado
+        self.img_key = image('img/senha.png', 20, 15)
+        self.lb_key = Label(self.root, image=self.img_key, bg=color1)
+        self.lb_key.place(relx=.2, rely=.61)
+
+        # Definindo o entry para a entrada do password
+        self.entry_password = CTkEntry(self.root, placeholder_text='Password'.upper(),
+                                       text_font='Arial 12 bold', placeholder_text_color=color2,
+                                       fg_color=color1, border_color=color1, show='*')
+        self.entry_password.place(relx=0.30, rely=.6, relwidth=.51)
+
+        """ Parte do botão """
+        # Botão para realizar o login
+        btn_logar = CTkButton(self.root, text='Login'.upper(), text_font='arial 15 bold',
+                              fg_color=color2, cursor='hand2', command=self.login)
+        btn_logar.place(relx=0.20, rely=.74, relwidth=.61, height=45)
+
+        self.lb_sem_cadastro = Label(self.root, text='Entrar sem cadastro.', fg=color2,
+                                     bg=color1, cursor='hand2')
+        # Entrar sem login
+        """ self.lb_sem_cadastro.bind('<Enter>', self.inside_hover)
+        self.lb_sem_cadastro.bind('<Leave>', self.outside_hover)
+        self.lb_sem_cadastro.place(relx=.35, rely=.9) """
+
+    def inside_hover(self, *args):
+        self.lb_sem_cadastro['fg'] = '#fff'
+
+    def outside_hover(self, *args):
+        self.lb_sem_cadastro['fg'] = color2
+
+    def login(self):
+        username = self.entry_username.get()
+        password = self.entry_password.get()
+        user = login(username, password)
+        if user:
+            self.root.destroy()
+            Aplication(CTk())
+        """ else:
+            print(self.frame_border_senha.fg_color)
+            self.frame_border_senha.fg_color='#ff0000'
+            self.frame_border_senha.destroy()
+            #self.frame_border_senha.pack() """
+
+
+ScreenLogin(CTk())
+
+modulos de configurações
+
+from tkinter import *
+from tkinter import ttk
+from customtkinter import *
+from relatorio import Relatorios
+from func_banco import Funcs
+from tabela import MyList
+from tkcalendar import DateEntry
+
+color0 = '#000'
+color1 = '#fff'
+color2 = '#008080'
+color3 = '#008080'
+color_text_toplevel = 'purple'
+color_bg_toplevel = '#008080'
+color_bg_entry_toplevel = 'blue'
+color_border_entry_top = 'white'
+color_text_button_toplevel = 'pink'
+color_bg_button_toplevel = 'red'
+color_border_button_toplevel = 'green'
+color_hover_button_toplevel = 'black'
+
+relatorios individuias das espécies em pdf
+
+
+from reportlab.pdfgen import canvas
+import webbrowser
+
+
+
+# Criando a Classe que vai gerar os relatórios com os dados do cliente em PDF
+class Relatorios():
+    def open_folder(self, name):
+        webbrowser.open(name+".pdf")
+    
+    def gerarRelatorioClientes(self, table, id):
+        self.c = canvas.Canvas("animais.pdf")
+        dados = self.search_registry(table, id)
+        self.idRel = str(dados[0])
+        self.specieRel = str(dados[1])
+        self.OrderRel = str(dados[2])
+        self.locationRel = str(dados[3])
+        self.dateRel = str(dados[4])
+        #self.descRel = '''Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.'''
+        self.c.setFont("Helvetica-Bold", 24)
+        self.c.drawString(200, 790, 'Ficha de animais')
+        
+        self.c.setFont("Helvetica-Bold", 18)
+        self.c.drawString(50, 700, 'Id: ' )
+        self.c.drawString(50, 670, 'Especie: ' )
+        self.c.drawString(50, 640, 'Ordem: ' )
+        self.c.drawString(50, 610, 'local da coleta: ' )
+        self.c.drawString(50, 580, 'data da coleta: ' )
+        #self.c.drawString(50, 550, 'descrição: ' )
+        
+        self.c.setFont("Helvetica", 18)
+        self.c.drawString(200, 700, self.idRel)
+        self.c.drawString(200, 670, self.specieRel)
+        self.c.drawString(200, 640, self.OrderRel)
+        self.c.drawString(200, 610, self.locationRel)
+        self.c.drawString(200, 580, self.dateRel)
+        #self.c.drawString(150, 580, self.descRel)
+                    #x, y, width, height
+        self.c.rect(25, 550, 550, 180, fill=False, stroke=True)
+        
+        self.c.showPage()
+        self.c.save()
+        self.open_folder('animais')
+        
+    def relatorio(self, table, id):
+        self.c = canvas.Canvas("inventario.pdf")
+        dados = self.search_registry(table, id)
+        self.idRel = str(dados[0])
+        self.specieRel = str(dados[1])
+        self.OrderRel = str(dados[2])
+        self.dateRel = str(dados[3])
+        #self.descRel = '''Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.'''
+        self.c.setFont("Helvetica-Bold", 24)
+        self.c.drawString(200, 790, 'Ficha de inventario')
+        
+        self.c.setFont("Helvetica-Bold", 18)
+        self.c.drawString(50, 700, 'Id: ' )
+        self.c.drawString(50, 670, 'Item: ' )
+        self.c.drawString(50, 640, 'Quantidade: ' )
+        self.c.drawString(50, 610, 'Data: ' )
+        #self.c.drawString(50, 550, 'descrição: ' )
+        
+        self.c.setFont("Helvetica", 18)
+        self.c.drawString(200, 700, self.idRel)
+        self.c.drawString(200, 670, self.specieRel)
+        self.c.drawString(200, 640, self.OrderRel)
+        self.c.drawString(200, 610, self.dateRel)
+        #self.c.drawString(150, 580, self.descRel)
+                    #x, y, width, height
+        self.c.rect(25, 550, 550, 180, fill=False, stroke=True)
+        
+        self.c.showPage()
+        self.c.save()
+        self.open_folder('inventario')
+       
+Tabela
+
+from tkinter import *
+from tkinter import ttk
+from customtkinter import *
+from PIL import ImageTk, Image
+
+bg_color_line = '#d3d3d3'
+bg_color_button_descricao = '#2c605f'
+bg_color_button_delete = '#d36e6e'
+bg_color_button_editar = '#5f8e9f'
+bg_hover_color_button = '#008080'
+fg_color_line = '#000'
+
+class MyList(CTkFrame):
+    
+    def create(self, master, datas):
+        super().__init__(master)
+        self.datas = datas
+        #Imagens
+        self.img_edit = Image.open('img/icon-edit.png')
+        self.img_edit = self.img_edit.resize((24, 24))
+        self.img_edit = ImageTk.PhotoImage(self.img_edit)
+        
+        self.img_delete = Image.open('img/icon-delete.png')
+        self.img_delete = self.img_delete.resize((24, 24))
+        self.img_delete = ImageTk.PhotoImage(self.img_delete)
+        
+        self.img_descri = Image.open('img/icon-descri.png')
+        self.img_descri = self.img_descri.resize((24, 24))
+        self.img_descri = ImageTk.PhotoImage(self.img_descri)
+        
+        
+        self.place(relx=0.015, rely=0.115, relwidth=0.97, relheight=0.8)
+        self.grid_rowconfigure(0, weight=1)
+
+        self.canvas = CTkCanvas(self)
+        self.canvas.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        self.scroll_bar = CTkScrollbar(self, orientation=VERTICAL, command = self.canvas.yview)
+        self.scroll_bar.place(relx=.98, rely=0, relwidth=.02, relheight=1)
+        self.canvas.config(yscrollcommand = self.scroll_bar.set)
+        
+        self.internal_frame = CTkFrame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.internal_frame, anchor='nw')
+        
+        self.__build()
+        self.internal_frame.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"), bg='#008080')
+
+    def __build(self):
+        
+        for data in self.datas:
+            frame = Frame(self.internal_frame, bg=bg_color_line)
+            frame.pack(fill = BOTH, expand = True)
+            CTkLabel(frame, text=data[0], width=60, fg_color=bg_color_line, text_color=fg_color_line).pack(side=LEFT)
+            
+            if(len(data[1]) > 30):
+                specie = data[1][:27] + "..."
+            else:
+                specie = data[1]
+            CTkLabel(frame, text=specie.title(), fg_color=bg_color_line, text_color=fg_color_line, width=220).pack(side=LEFT)
+            
+            if(len(data[2]) > 15):
+                order = data[2][:13] +"..."
+            else:
+                order = data[2]
+            CTkLabel(frame, text=order, width=100, fg_color=bg_color_line, text_color=fg_color_line).pack(side=LEFT)
+            
+            if(len(data[3]) > 15):
+                location = data[3][:13] +"..."
+            else:
+                location = data[3]
+            CTkLabel(frame, text=location, width=100, fg_color=bg_color_line, text_color=fg_color_line).pack(side=LEFT)
+            
+            CTkLabel(frame, text=data[4], width=100, fg_color=bg_color_line, text_color=fg_color_line).pack(side=LEFT)
+            
+            self.new_button_edit(frame, data[0])
+            self.new_button_excluir(frame, data[0])
+            self.new_button_descricao(frame, data[0])
+     
+    def new_button_edit(self, master, id):
+        return CTkButton(master, text='', image=self.img_edit, width=12, cursor='hand2',
+                         fg_color=bg_color_button_editar, hover_color=bg_hover_color_button,
+                         command=lambda *a: self.edit_reg(id)).pack(side=LEFT)
+    
+    def new_button_excluir(self, master, id):
+        return CTkButton(master, text='', image=self.img_delete, width=12, cursor='hand2',
+                         fg_color=bg_color_button_delete, hover_color=bg_hover_color_button,
+                         command=lambda *a: self.excluirasdf(master, id)).pack(side=LEFT)
+    
+    def new_button_descricao(self, master, id):
+        return CTkButton(master, text='', image=self.img_descri, width=12, cursor='hand2',
+                         fg_color=bg_color_button_descricao, hover_color=bg_hover_color_button,
+                         command=lambda *a: self.gerarRelatorioClientes('tbl_laboratorio', id)).pack(side=LEFT)
+    
+    def excluirasdf(self, master, id):
+        master.destroy()
+        self.deleta_cliente('tbl_laboratorio', id)
+        
+    def edit_reg(self, id):
+        self.screen_edit(id)
+
+
+tabela dos inventarios
+
+from tkinter import *
+from tkinter import ttk
+from customtkinter import *
+from PIL import ImageTk, Image
+
+bg_color_line = '#d3d3d3'
+bg_color_button_descricao = '#2c605f'
+bg_color_button_delete = '#d36e6e'
+bg_color_button_editar = '#5f8e9f'
+bg_hover_color_button = '#008080'
+fg_color_line = '#000'
+
+class MyList(CTkFrame):
+    
+    def create(self, master, datas):
+        super().__init__(master)
+        self.datas = datas
+        #Imagens
+        self.img_edit = Image.open('img/icon-edit.png')
+        self.img_edit = self.img_edit.resize((24, 24))
+        self.img_edit = ImageTk.PhotoImage(self.img_edit)
+        
+        self.img_delete = Image.open('img/icon-delete.png')
+        self.img_delete = self.img_delete.resize((24, 24))
+        self.img_delete = ImageTk.PhotoImage(self.img_delete)
+        
+        self.img_descri = Image.open('img/icon-descri.png')
+        self.img_descri = self.img_descri.resize((24, 24))
+        self.img_descri = ImageTk.PhotoImage(self.img_descri)
+        
+        
+        self.place(relx=0.015, rely=0.115, relwidth=0.97, relheight=0.8)
+        self.grid_rowconfigure(0, weight=1)
+
+        self.canvas = CTkCanvas(self)
+        self.canvas.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        self.scroll_bar = CTkScrollbar(self, orientation=VERTICAL, command = self.canvas.yview)
+        self.scroll_bar.place(relx=.98, rely=0, relwidth=.02, relheight=1)
+        self.canvas.config(yscrollcommand = self.scroll_bar.set)
+        
+        self.internal_frame = CTkFrame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.internal_frame, anchor='nw')
+        
+        self.__build()
+        self.internal_frame.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"), bg='#008080')
+
+    def __build(self):
+        
+        for data in self.datas:
+            frame = Frame(self.internal_frame, bg=bg_color_line)
+            frame.pack(fill = BOTH, expand = True)
+            CTkLabel(frame, text=data[0], width=60, fg_color=bg_color_line, text_color=fg_color_line).pack(side=LEFT)
+            
+            if(len(data[1]) > 30):
+                specie = data[1][:27] + "..."
+            else:
+                specie = data[1]
+            CTkLabel(frame, text=specie.title(), fg_color=bg_color_line, text_color=fg_color_line, width=220).pack(side=LEFT)
+            
+            if(len(data[2]) > 15):
+                order = data[2][:13] +"..."
+            else:
+                order = data[2]
+            CTkLabel(frame, text=order, width=100, fg_color=bg_color_line, text_color=fg_color_line).pack(side=LEFT)
+            
+            if(len(data[3]) > 15):
+                location = data[3][:13] +"..."
+            else:
+                location = data[3]
+            CTkLabel(frame, text=location, width=100, fg_color=bg_color_line, text_color=fg_color_line).pack(side=LEFT)
+            
+            CTkLabel(frame, text=data[4], width=100, fg_color=bg_color_line, text_color=fg_color_line).pack(side=LEFT)
+            
+            self.new_button_edit(frame, data[0])
+            self.new_button_excluir(frame, data[0])
+            self.new_button_descricao(frame, data[0])
+     
+    def new_button_edit(self, master, id):
+        return CTkButton(master, text='', image=self.img_edit, width=12, cursor='hand2',
+                         fg_color=bg_color_button_editar, hover_color=bg_hover_color_button,
+                         command=lambda *a: self.edit_reg(id)).pack(side=LEFT)
+    
+    def new_button_excluir(self, master, id):
+        return CTkButton(master, text='', image=self.img_delete, width=12, cursor='hand2',
+                         fg_color=bg_color_button_delete, hover_color=bg_hover_color_button,
+                         command=lambda *a: self.excluirasdf(master, id)).pack(side=LEFT)
+    
+    def new_button_descricao(self, master, id):
+        return CTkButton(master, text='', image=self.img_descri, width=12, cursor='hand2',
+                         fg_color=bg_color_button_descricao, hover_color=bg_hover_color_button,
+                         command=lambda *a: self.gerarRelatorioClientes('tbl_laboratorio', id)).pack(side=LEFT)
+    
+    def excluirasdf(self, master, id):
+        master.destroy()
+        self.deleta_cliente('tbl_laboratorio', id)
+        
+    def edit_reg(self, id):
+        self.screen_edit(id)
+        
